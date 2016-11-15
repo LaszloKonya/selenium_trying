@@ -12,7 +12,7 @@ import java.util.Random;
  */
 public class AbstractScreen {
 
-    private By forward_locator =By.id("com.attrecto.flagr:id/iv_reg_forward");
+    private static By forward_locator =By.id("com.attrecto.flagr:id/iv_reg_forward");
 
     protected AndroidDriver driver;
 
@@ -21,6 +21,11 @@ public class AbstractScreen {
     protected void waitForVisibilityOf(By locator) {
         WebDriverWait wait = new WebDriverWait(this.driver, 30L);
         wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    protected void waitForPresenceOf(By locator) {
+        WebDriverWait wait = new WebDriverWait(this.driver, 30L);
+        wait.until(ExpectedConditions.presenceOfElementLocated(locator));
     }
 
     protected void waitForClickabilityOf(By locator) {

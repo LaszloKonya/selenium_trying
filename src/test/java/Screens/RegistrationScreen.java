@@ -1,10 +1,14 @@
 package Screens;
 
-import io.appium.java_client.android.AndroidDriver;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import java.util.Random;
+import io.appium.java_client.android.AndroidDriver;
 
 /**
  *
@@ -12,12 +16,13 @@ import java.util.Random;
  */
 public class RegistrationScreen extends AbstractScreen {
 
-    private By male_locator = By.id("com.attrecto.flagr:id/iv_gender_selector_male");
-    private By female_locator = By.id("com.attrecto.flagr:id/iv_gender_selector_female");
-    private By other_locator = By.id("com.attrecto.flagr:id/iv_gender_selector_other");
-    private By bubble_locator = By.id("com.attrecto.flagr:id/tv_lower_bubble_age");
-    private By ageBox_locator = By.id("com.attrecto.flagr:id/et_age_selector");
-    private Random random;
+    private static By male_locator = By.id("com.attrecto.flagr:id/iv_gender_selector_male");
+    private static By female_locator = By.id("com.attrecto.flagr:id/iv_gender_selector_female");
+    private static By other_locator = By.id("com.attrecto.flagr:id/iv_gender_selector_other");
+    private static By bubble_locator = By.id("com.attrecto.flagr:id/tv_lower_bubble_age");
+    private static By ageBox_locator = By.id("com.attrecto.flagr:id/et_age_selector");
+    private static By forward_locator = By.id("com.attrecto.flagr:id/iv_reg_forward");
+    private static Random random;
 
     public RegistrationScreen(AndroidDriver driver) {
         super(driver);
@@ -27,15 +32,15 @@ public class RegistrationScreen extends AbstractScreen {
     public void ChoosGenderRandom() {
         int randomInt = getRandomIntBetween(1, 3);
         switch (randomInt) {
-            case 1:
-                driver.findElement(male_locator).click();
-                break;
-            case 2:
-                driver.findElement(female_locator).click();
-                break;
-            case 3:
-                driver.findElement(other_locator).click();
-                break;
+        case 1:
+            driver.findElement(male_locator).click();
+            break;
+        case 2:
+            driver.findElement(female_locator).click();
+            break;
+        case 3:
+            driver.findElement(other_locator).click();
+            break;
         }
     }
 
@@ -57,7 +62,7 @@ public class RegistrationScreen extends AbstractScreen {
         if (isBetween(rAge, 15, 26)) {
             Assert.assertEquals(KorSzamkent, Integer.valueOf(rAge + 4), "Szar");
             Assert.assertTrue(true, "Szar");
-            Assert.assertFalse(false,"szar");
+            Assert.assertFalse(false, "szar");
         } else if (isBetween(rAge, 27, 46)) {
             Assert.assertEquals(KorSzamkent, Integer.valueOf(rAge - 5), "Szar");
         } else if (isBetween(rAge, 47, 99)) {
@@ -94,6 +99,41 @@ public class RegistrationScreen extends AbstractScreen {
 
     }
 
+    private void ifElementPresentGoForward() {
+        if (isElementPresent(forward_locator)) {
+            clickArrow();
+            ifElementPresentGoForward();
+        }
+    }
+
+    private boolean isElementPresent(By locator) {
+        //set timeout lower, then appium's timeout: prevents to wait long seconds to find the element
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        boolean empty = driver.findElements(locator).isEmpty();
+        //set back appium's timeout
+        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        return empty;
+    }
+
+    private boolean isElementPresent2(By locator)
+    {
+        //set timeout lower, then appium's timeout: prevents to wait long seconds to find the element
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        try
+        {
+            driver.findElement(locator);
+            //set back appium's timeout
+            driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+            return true;
+        }
+        catch (NoSuchElementException nosuchelementexception)
+        {
+            //set back appium's timeout
+            driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+            return false;
+        }
+    }
+
     private Integer getAgeFromBubble(int rAge, By locator) {
         clickArrow();
         waitForVisibilityOf(locator);
@@ -108,11 +148,11 @@ public class RegistrationScreen extends AbstractScreen {
         return Integer.valueOf(Kor);
     }
 
-    private int getRandomIntBetween(int bottomBound, int topBound) {
+    private static int getRandomIntBetween(int bottomBound, int topBound) {
         return bottomBound + random.nextInt(topBound - bottomBound);
     }
 
-    private boolean isBetween(int x, int lower, int upper) {
+    private static boolean isBetween(int x, int lower, int upper) {
         return lower <= x && x <= upper;
     }
 }
